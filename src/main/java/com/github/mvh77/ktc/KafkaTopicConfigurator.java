@@ -72,7 +72,7 @@ public class KafkaTopicConfigurator {
                 .getOrElse(Vector.empty())
                 .foldLeft(HashMap.empty(), (map, fileTopics) -> map.merge(HashMap.ofAll(fileTopics.getTopics())));
         if (noReplication) {
-            result.forEach((k, v) -> v.setPartitions(1));
+            result.forEach((k, v) -> v.setReplication(1));
         }
         return result;
     }

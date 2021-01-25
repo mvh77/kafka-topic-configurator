@@ -19,7 +19,7 @@
 
     <groupId>com.github.mvh77</groupId>
     <artifactId>kafka-topic-configurator</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <name>Kafka Topic Configurator</name>
     <description>A Kafka topic configurator</description>
     <url>https://github.com/mvh77/kafka-topic-configurator</url>
