@@ -31,8 +31,8 @@ import java.util.stream.Collectors;
 
 public class KafkaTopicConfigurator {
 
-    public void execute(String bootstrap, String definitions, boolean dryRun, boolean removeTopics, boolean noReplication) {
-        CustomAdminClient client = new CustomAdminClient(bootstrap);
+    public void execute(String bootstrap, String definitions, String extraProperties, boolean dryRun, boolean removeTopics, boolean noReplication) {
+        CustomAdminClient client = new CustomAdminClient(bootstrap, extraProperties);
         client.getTotalDescription()
                 .whenComplete((topics, error) -> {
                     if (topics != null) {

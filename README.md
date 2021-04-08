@@ -4,21 +4,25 @@ Kafka topic configuration tool based on the Kafka client
 
 Run:
 ```
-java -jar kafka-topic-configurator-X.Y.Z.jar -bootstrap localhost:29092 -definitions config.yml -dryRun
+java -jar kafka-topic-configurator-X.Y.Z.jar -bootstrap localhost:29092 -definitions config.yml -dryRun -extraProperties config.properties
 ```
 
 Options:
 
 ```
 java KafkaTopicConfiguratorMain [options...] arguments...
- -bootstrap VAL   : kafka bootstrap servers, in the form host1:port1,host2:port2,...
- -definitions VAL : topic definition files, in the form config1.yml,config2.yml,...
- -dryRun          : don't run any of the updates, just print the current topics
-                    and what would be updated (default: false)
- -noReplication   : don't respect replication numbers for local testing
-                    purposes (default: false)
- -removeTopics    : remove topics missing from the definition files (default:
-                    false)
+ -bootstrap VAL       : kafka bootstrap servers, in the form
+                        host1:port1,host2:port2,...
+ -definitions VAL     : topic definition files, in the form
+                        config1.yml,config2.yml,...
+ -dryRun              : don't run any of the updates, just print the current
+                        topics and the updates to execute (default: false)
+ -extraProperties VAL : extra .properties files for configuring the client, in
+                        the form config1.properties,config2.properties,...
+ -noReplication       : don't respect replication numbers for local testing
+                        purposes (default: false)
+ -removeTopics        : remove topics missing from the definition files
+                        (default: false)
 ```
 
 Configuration file syntax:

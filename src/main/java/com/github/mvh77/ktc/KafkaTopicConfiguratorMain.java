@@ -18,6 +18,9 @@ public class KafkaTopicConfiguratorMain {
     @Option(name = "-definitions", usage = "topic definition files, in the form config1.yml,config2.yml,...", required = true)
     private String definitions;
 
+    @Option(name = "-extraProperties", usage = "extra .properties files for configuring the client, in the form config1.properties,config2.properties,...")
+    private String extraProperties;
+
     @Option(name = "-dryRun", usage = "don't run any of the updates, just print the current topics and the updates to execute")
     private boolean dryRun = false;
 
@@ -44,7 +47,7 @@ public class KafkaTopicConfiguratorMain {
             System.err.println("  Example: java KafkaTopicConfiguratorMain" + parser.printExample(ALL));
             return;
         }
-        new KafkaTopicConfigurator().execute(bootstrap, definitions, dryRun, removeTopics, noReplication);
+        new KafkaTopicConfigurator().execute(bootstrap, definitions, extraProperties, dryRun, removeTopics, noReplication);
     }
 
     public static void main(String[] args) {

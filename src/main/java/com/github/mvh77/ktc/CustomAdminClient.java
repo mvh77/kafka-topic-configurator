@@ -18,17 +18,23 @@ import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.common.KafkaFuture;
 import org.apache.kafka.common.config.ConfigResource;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 public class CustomAdminClient {
 
     private final AdminClient adminClient;
 
-    CustomAdminClient(String bootstrap) {
-        Map<String, Object> properties = HashMap.of(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap, AdminClientConfig.RETRIES_CONFIG, 5);
-        this.adminClient = AdminClient.create(properties.toJavaMap());
+    CustomAdminClient(String bootstrap, String extraProperties) {
+        var properties = readProperties(extraProperties);
+        properties.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrap);
+        properties.put(AdminClientConfig.RETRIES_CONFIG, 5);
+        this.adminClient = AdminClient.create(properties);
     }
 
     void close() {
@@ -90,5 +96,25 @@ public class CustomAdminClient {
             else ret.completeAsync(() -> t);
         });
         return ret;
+    }
+
+    private Properties readProperties(String filenames) {
+        var properties = new Properties();
+        if (filenames != null && !filenames.isBlank()) {
+            Stream.of(filenames.split(",")).forEach(file -> properties.putAll(read(file)));
+        }
+        return properties;
+    }
+
+    public static Properties read(String path) {
+        try {
+            try (var fis = new FileInputStream(path)) {
+                var properties = new Properties();
+                properties.load(fis);
+                return properties;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
