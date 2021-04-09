@@ -45,3 +45,5 @@ topics:
       retention.ms: 600000 # 10min
       segment.ms: 300000 # 5min
 ```
+
+In addition to the `-extraProperties` flag (where properties can be imported from files) all environment variables starting with `KAFKA_CFG_` will be used as properties, i.e. something like `KAFKA_CFG_SECURITY_PROTOCOL` will become `security.protocol`.

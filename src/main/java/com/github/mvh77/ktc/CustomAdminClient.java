@@ -24,10 +24,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CustomAdminClient {
 
+    private static final String KAFKA_CONFIG_PREFIX = "KAFKA_CFG_";
     private final AdminClient adminClient;
 
     CustomAdminClient(String bootstrap, String extraProperties) {
@@ -101,12 +103,20 @@ public class CustomAdminClient {
     private Properties readProperties(String filenames) {
         var properties = new Properties();
         if (filenames != null && !filenames.isBlank()) {
-            Stream.of(filenames.split(",")).forEach(file -> properties.putAll(read(file)));
+            Stream.of(filenames.split(",")).forEach(file -> properties.putAll(readFile(file)));
         }
+        properties.putAll(readEnv());
         return properties;
     }
 
-    public static Properties read(String path) {
+    public static java.util.Map<String, String> readEnv() {
+         return System.getenv().entrySet().stream()
+                .filter(e -> e.getKey().startsWith(KAFKA_CONFIG_PREFIX))
+                .map(e -> new String[]{e.getKey().substring(KAFKA_CONFIG_PREFIX.length()).toLowerCase().replace('_', '.'), e.getValue()})
+                .collect(Collectors.toMap(a -> a[0], a -> a[1]));
+    }
+
+    public static Properties readFile(String path) {
         try {
             try (var fis = new FileInputStream(path)) {
                 var properties = new Properties();
