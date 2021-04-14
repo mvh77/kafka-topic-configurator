@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 public class KafkaTopicConfigurator {
 
-    public void execute(String bootstrap, String definitions, String extraProperties, boolean dryRun, boolean removeTopics, boolean noReplication) {
+    public void execute(String bootstrap, String definitions, String extraProperties, boolean dryRun, boolean removeTopics, boolean noReplication, boolean incrementPartitionCount) {
         CustomAdminClient client = new CustomAdminClient(bootstrap, extraProperties);
         client.getTotalDescription()
                 .whenComplete((topics, error) -> {
@@ -44,9 +44,9 @@ public class KafkaTopicConfigurator {
                         var updatedTopics = getTopicsToUpdate(currentTopics, targetTopics);
                         updateTopics(client, updatedTopics, dryRun);
                         var updatedTopicCounts = getPartitionCountsToUpdate(topics.keySet(), targetTopics);
-                        updateTopicCount(client, updatedTopicCounts, dryRun);
+                        updateTopicCount(client, updatedTopicCounts, dryRun, incrementPartitionCount);
                         var deletedTopics = currentTopics.keySet().removeAll(targetTopics.keySet());
-                        deleteTopics(client, deletedTopics, removeTopics);
+                        deleteTopics(client, deletedTopics, dryRun, removeTopics);
                     }
                     if (error != null) {
                         errorPrintln("Error retrieving currently configured topics with", error);
@@ -153,23 +153,27 @@ public class KafkaTopicConfigurator {
                 .toMap(Function.identity());
     }
 
-    private void updateTopicCount(CustomAdminClient client, Map<String, Tuple2<Integer, Integer>> updatedTopicCounts, boolean dryRun) {
-        println("------------------------------------------------------------------------");
-        println("--                 - PARTITION COUNTS TO INCREASE -                   --");
-        println("------------------------------------------------------------------------");
-        updatedTopicCounts.forEach((topic, count) -> println(topic + " " + count._1 + " -> " + count._2));
-        if (!dryRun) {
-            client.doUpdatePartitionCount(updatedTopicCounts.mapValues(t2 -> t2._2));
+    private void updateTopicCount(CustomAdminClient client, Map<String, Tuple2<Integer, Integer>> updatedTopicCounts, boolean dryRun, boolean incrementPartitionCount) {
+        if (incrementPartitionCount) {
+            println("------------------------------------------------------------------------");
+            println("--                 - PARTITION COUNTS TO INCREASE -                   --");
+            println("------------------------------------------------------------------------");
+            updatedTopicCounts.forEach((topic, count) -> println(topic + " " + count._1 + " -> " + count._2));
+            if (!dryRun) {
+                client.doUpdatePartitionCount(updatedTopicCounts.mapValues(t2 -> t2._2));
+            }
         }
     }
 
-    private void deleteTopics(CustomAdminClient client, Set<String> topics, boolean removeTopics) {
-        println("------------------------------------------------------------------------");
-        println("--                        - TOPICS TO DELETE -                        --");
-        println("------------------------------------------------------------------------");
-        topics.forEach(topic -> println("  " + topic));
+    private void deleteTopics(CustomAdminClient client, Set<String> topics, boolean dryRun, boolean removeTopics) {
         if (removeTopics) {
-            client.doDeleteTopics(topics);
+            println("------------------------------------------------------------------------");
+            println("--                        - TOPICS TO DELETE -                        --");
+            println("------------------------------------------------------------------------");
+            topics.forEach(topic -> println("  " + topic));
+            if (!dryRun) {
+                client.doDeleteTopics(topics);
+            }
         }
     }
 

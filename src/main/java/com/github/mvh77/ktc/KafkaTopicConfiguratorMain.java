@@ -30,6 +30,9 @@ public class KafkaTopicConfiguratorMain {
     @Option(name = "-noReplication", usage = "don't respect replication numbers for local testing purposes")
     private boolean noReplication = false;
 
+    @Option(name = "-incrementPartitionCount", usage = "increment the partition count if changed (NOTE: seldom safe for compacted topics)")
+    private boolean incrementPartitionCount = false;
+
     public void doMain(String[] args) {
         CmdLineParser parser = new CmdLineParser(this);
         try {
@@ -47,7 +50,7 @@ public class KafkaTopicConfiguratorMain {
             System.err.println("  Example: java KafkaTopicConfiguratorMain" + parser.printExample(ALL));
             return;
         }
-        new KafkaTopicConfigurator().execute(bootstrap, definitions, extraProperties, dryRun, removeTopics, noReplication);
+        new KafkaTopicConfigurator().execute(bootstrap, definitions, extraProperties, dryRun, removeTopics, noReplication, incrementPartitionCount);
     }
 
     public static void main(String[] args) {
